@@ -2,8 +2,9 @@
 The classic game of flappy bird. Make with python
 and pygame. Features pixel perfect collision using masks :o
 
-Date Modified:  Jul 30, 2019
+Date Modified:  26/04/2026
 Author: Tech With Tim
+Updated By: Karthik Arjun 
 Estimated Work Time: 5 hours (1 just for that damn collision)
 """
 import pygame
@@ -261,15 +262,16 @@ def blitRotateCenter(surf, image, topleft, angle):
 
     surf.blit(rotated_image, new_rect.topleft)
 
-def draw_window(win, birds, pipes, base, score, gen, pipe_ind):
+def draw_window(win, birds, pipes, base, score, gen, pipe_ind, nets=None):
     """
     draws the windows for the main game loop
     :param win: pygame window surface
-    :param bird: a Bird object
+    :param birds: List of Bird objects
     :param pipes: List of pipes
     :param score: score of the game (int)
     :param gen: current generation
     :param pipe_ind: index of closest pipe
+    :param nets: Neural networks for visualization
     :return: None
     """
     if gen == 0:
@@ -280,16 +282,66 @@ def draw_window(win, birds, pipes, base, score, gen, pipe_ind):
         pipe.draw(win)
 
     base.draw(win)
-    for bird in birds:
+    
+    # Draw info for top 5 birds (or fewer if population is small)
+    num_birds_to_show = min(5, len(birds))
+    
+    for i, bird in enumerate(birds[:num_birds_to_show]):
         # draw lines from bird to pipe
         if DRAW_LINES:
             try:
-                pygame.draw.line(win, (255,0,0), (bird.x+bird.img.get_width()/2, bird.y + bird.img.get_height()/2), (pipes[pipe_ind].x + pipes[pipe_ind].PIPE_TOP.get_width()/2, pipes[pipe_ind].height), 5)
-                pygame.draw.line(win, (255,0,0), (bird.x+bird.img.get_width()/2, bird.y + bird.img.get_height()/2), (pipes[pipe_ind].x + pipes[pipe_ind].PIPE_BOTTOM.get_width()/2, pipes[pipe_ind].bottom), 5)
+                pygame.draw.line(win, (255,0,0), (bird.x+bird.img.get_width()/2, bird.y + bird.img.get_height()/2), (pipes[pipe_ind].x + pipes[pipe_ind].PIPE_TOP.get_width()/2, pipes[pipe_ind].height), 2)
+                pygame.draw.line(win, (255,0,0), (bird.x+bird.img.get_width()/2, bird.y + bird.img.get_height()/2), (pipes[pipe_ind].x + pipes[pipe_ind].PIPE_BOTTOM.get_width()/2, pipes[pipe_ind].bottom), 2)
             except:
                 pass
+        
         # draw bird
         bird.draw(win)
+        
+        # Draw AI decision info if neural network is available
+        if nets is not None and i < len(nets):
+            try:
+                # Get the neural network for this bird
+                net = nets[i]
+                
+                # Get inputs for this bird
+                bird_y = bird.y
+                top_pipe_dist = abs(bird.y - pipes[pipe_ind].height)
+                bottom_pipe_dist = abs(bird.y - pipes[pipe_ind].bottom)
+                
+                # Get neural network output
+                output = net.activate((bird_y, top_pipe_dist, bottom_pipe_dist))
+                jump_decision = output[0] > 0.5
+                
+                # Draw decision info below bird
+                y_offset = bird.y + bird.img.get_height() + 15 + (i * 45)
+                
+                # Input values
+                input_label = pygame.font.SysFont("comicsans", 12).render(
+                    f"Inputs: y={int(bird_y)}  top_dist={int(top_pipe_dist)}  bot_dist={int(bottom_pipe_dist)}", 
+                    1, (200, 200, 200)
+                )
+                win.blit(input_label, (bird.x + 10, y_offset))
+                
+                # Output value and decision
+                decision_text = "JUMP!" if jump_decision else "stay"
+                decision_color = (0, 255, 0) if jump_decision else (255, 255, 0)
+                output_label = pygame.font.SysFont("comicsans", 12).render(
+                    f"Output: {output[0]:.3f} -> {decision_text}", 
+                    1, decision_color
+                )
+                win.blit(output_label, (bird.x + 10, y_offset + 15))
+                
+                # Fitness indicator
+                if hasattr(bird, 'fitness'):
+                    fitness_label = pygame.font.SysFont("comicsans", 10).render(
+                        f"Fitness: {bird.fitness:.1f}", 
+                        1, (100, 100, 255)
+                    )
+                    win.blit(fitness_label, (bird.x + 10, y_offset + 30))
+                    
+            except Exception as e:
+                pass
 
     # score
     score_label = STAT_FONT.render("Score: " + str(score),1,(255,255,255))
@@ -302,6 +354,15 @@ def draw_window(win, birds, pipes, base, score, gen, pipe_ind):
     # alive
     score_label = STAT_FONT.render("Alive: " + str(len(birds)),1,(255,255,255))
     win.blit(score_label, (10, 50))
+
+    # Legend
+    legend_y = WIN_HEIGHT - 60
+    pygame.draw.line(win, (255,0,0), (10, legend_y), (30, legend_y), 2)
+    win.blit(pygame.font.SysFont("comicsans", 12).render("= Pipe distance line", 1, (255,255,255)), (35, legend_y - 2))
+    pygame.draw.line(win, (0,255,0), (10, legend_y + 20), (30, legend_y + 20), 2)
+    win.blit(pygame.font.SysFont("comicsans", 12).render("= Jump decision", 1, (255,255,255)), (35, legend_y + 18))
+    pygame.draw.line(win, (255,255,0), (10, legend_y + 40), (30, legend_y + 40), 2)
+    win.blit(pygame.font.SysFont("comicsans", 12).render("= Stay decision", 1, (255,255,255)), (35, legend_y + 38))
 
     pygame.display.update()
 
@@ -398,7 +459,7 @@ def eval_genomes(genomes, config):
                 ge.pop(birds.index(bird))
                 birds.pop(birds.index(bird))
 
-        draw_window(WIN, birds, pipes, base, score, gen, pipe_ind)
+        draw_window(WIN, birds, pipes, base, score, gen, pipe_ind, nets)
 
         # break if score gets large enough
         '''if score > 20:
