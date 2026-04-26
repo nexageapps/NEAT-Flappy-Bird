@@ -1,8 +1,8 @@
-# NEAT Flappy Bird 🐦
+# NEAT Flappy Bird
 
 An AI that learns to play Flappy Bird using the NEAT (NeuroEvolution of Augmenting Topologies) algorithm.
 
-## 📚 Understanding NEAT - A Student's Guide (MAI UoA)
+## Understanding NEAT - A Student's Guide (MAI UoA)
 
 ### What is NEAT?
 
@@ -179,11 +179,11 @@ NEAT is a neuroevolution algorithm that evolves neural networks over generations
 
 ## How It Works
 
-1. **Population**: Starts with 50 random birds, each with a unique neural network
-2. **Evaluation**: Each bird plays the game; fitness increases for surviving longer and passing pipes
-3. **Selection**: Birds with higher fitness are more likely to reproduce
-4. **Evolution**: New generations are created through mutation and crossover
-5. **Improvement**: Over time, the AI learns to navigate through pipes effectively
+1. Population: Starts with 50 random birds, each with a unique neural network
+2. Evaluation: Each bird plays the game; fitness increases for surviving longer and passing pipes
+3. Selection: Birds with higher fitness are more likely to reproduce
+4. Evolution: New generations are created through mutation and crossover
+5. Improvement: Over time, the AI learns to navigate through pipes effectively
 
 ## Installation
 
@@ -220,10 +220,10 @@ python flappy_bird.py
 
 ### How It Works
 
-1. **Generation 0**: 50 random birds with simple neural networks
-2. **Fitness Evaluation**: Birds get +0.1 for each frame they survive, +5 for passing a pipe
-3. **Evolution**: Better performing birds pass their genes to the next generation
-4. **Progress**: Watch the AI improve over 50 generations
+1. Generation 0: 50 random birds with simple neural networks
+2. Fitness Evaluation: Birds get +0.1 for each frame they survive, +5 for passing a pipe
+3. Evolution: Better performing birds pass their genes to the next generation
+4. Progress: Watch the AI improve over 50 generations
 
 ### Running the Trained AI
 
@@ -249,9 +249,9 @@ The terminal shows:
 
 ## Output Files
 
-- `best.pickle`: Stores the best trained neural network
-- `avg_fitness.svg`: Plot of average/best fitness over generations
-- `speciation.svg`: Visualization of species distribution
+- best.pickle: Stores the best trained neural network
+- avg_fitness.svg: Plot of average/best fitness over generations
+- speciation.svg: Visualization of species distribution
 
 ## Configuration
 
@@ -273,11 +273,11 @@ Single neuron: Jump if output > 0.5
 
 ## Video Tutorial
 
-[Watch the detailed explanation](https://www.youtube.com/watch?v=OGHA-elMrxI)
+Watch the detailed explanation
 
 ## Author
 
-Original code by [Tech With Tim](https://techwithtim.net)
+Original code by Tech With Tim
 
 ## License
 
